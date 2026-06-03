@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
-from .forms import AdminMemberForm
+from .forms import AdminMemberForm, AdminEditMemberForm
 from .models import Profile
 from core.forms import SiteSettingsForm, HomepageServiceForm, VideoForm, PDFGuideForm, SlideForm
 from core.models import SiteSettings, ProfessionalSupportService, Video, PDFGuide, Slide
@@ -87,17 +87,22 @@ def edit_profile(request):
         user.last_name = last_name
         user.save()
         
-        # Update Profile model fields
-        profile.gender = request.POST.get('gender')
-        profile.marital_status = request.POST.get('marital_status')
-        profile.phone_number = request.POST.get('phone_number')
-        
-        date_of_birth = request.POST.get('date_of_birth')
-        if date_of_birth:
+        # Update Profile fields only when submitted (modal may omit optional fields)
+        if 'gender' in request.POST:
+            profile.gender = request.POST.get('gender') or ''
+        if 'marital_status' in request.POST:
+            profile.marital_status = request.POST.get('marital_status') or ''
+        if 'phone_number' in request.POST:
+            profile.phone_number = request.POST.get('phone_number') or ''
+        if 'address' in request.POST:
+            profile.address = request.POST.get('address') or ''
+        if 'date_of_birth' in request.POST:
             from datetime import datetime
-            profile.date_of_birth = datetime.strptime(date_of_birth, '%Y-%m-%d').date()
-        
-        profile.address = request.POST.get('address')
+            dob = (request.POST.get('date_of_birth') or '').strip()
+            if dob:
+                profile.date_of_birth = datetime.strptime(dob, '%Y-%m-%d').date()
+            else:
+                profile.date_of_birth = None
         
         # Handle profile picture upload
         if request.FILES.get('profile_picture'):
@@ -196,6 +201,7 @@ def user_dashboard(request):
             )
 
         member_form = AdminMemberForm()
+        edit_member_form = None
 
         if active_tab == 'members' and request.method == 'POST':
             action = request.POST.get('action', '')
@@ -209,6 +215,26 @@ def user_dashboard(request):
                     )
                     return redirect(f"{reverse('dashboard')}?tab=members")
                 messages.error(request, 'Could not register member. Check the form below.')
+            elif action == 'edit_member':
+                user_id = request.POST.get('user_id')
+                target = User.objects.filter(id=user_id).first()
+                if not target:
+                    messages.error(request, 'Member not found.')
+                    return redirect(f"{reverse('dashboard')}?tab=members")
+                if target.is_staff and target.id != request.user.id:
+                    messages.error(request, 'You cannot edit another staff account here.')
+                    return redirect(f"{reverse('dashboard')}?tab=members")
+                edit_member_form = AdminEditMemberForm(
+                    request.POST, target_user=target
+                )
+                if edit_member_form.is_valid():
+                    edit_member_form.save()
+                    messages.success(
+                        request,
+                        f'Account "{target.get_full_name() or target.username}" updated successfully.',
+                    )
+                    return redirect(f"{reverse('dashboard')}?tab=members")
+                messages.error(request, 'Could not update member. Check the form below.')
             elif action == 'delete_member':
                 user_id = request.POST.get('user_id')
                 target = User.objects.filter(id=user_id).first()
@@ -217,6 +243,9 @@ def user_dashboard(request):
                     return redirect(f"{reverse('dashboard')}?tab=members")
                 if target.id == request.user.id:
                     messages.error(request, 'You cannot delete your own account.')
+                    return redirect(f"{reverse('dashboard')}?tab=members")
+                if target.is_staff:
+                    messages.error(request, 'Staff accounts cannot be deleted from here.')
                     return redirect(f"{reverse('dashboard')}?tab=members")
                 target.delete()
                 messages.success(request, 'Member deleted successfully.')
@@ -227,6 +256,7 @@ def user_dashboard(request):
             'admin_stats': {'total_members': Profile.objects.count()},
             'member_search': member_search,
             'member_form': member_form,
+            'edit_member_form': edit_member_form,
             'dash_stats': {
                 'videos': Video.objects.count(),
                 'pdfs': PDFGuide.objects.count(),
@@ -272,9 +302,7 @@ def user_dashboard(request):
                             continue
                         pillars.append({'name': name, 'description': desc, 'accent': accent})
 
-                    if pillars:
-                        site.home_pillars = pillars
-                        site.save(update_fields=['home_pillars'])
+                    site.home_pillars = pillars
 
                     methods = []
                     rows_len = max(len(method_titles), len(method_icons), len(r1_labels), len(r1_values), len(r2_labels), len(r2_values), len(r3_labels), len(r3_values))
@@ -298,20 +326,20 @@ def user_dashboard(request):
                             continue
                         methods.append({'title': title or 'Payment method', 'icon': icon, 'rows': rows})
 
-                    if methods:
-                        site.donation_methods = methods
-                        site.save(update_fields=['donation_methods'])
+                    site.donation_methods = methods
 
-                    video_cats = _read_list('video_category[]')
-                    pdf_cats = _read_list('pdf_category[]')
-                    slide_cats = _read_list('slide_category[]')
-                    gallery_cats = _read_list('gallery_category[]')
-                    if any([video_cats, pdf_cats, slide_cats, gallery_cats]):
-                        site.video_categories = video_cats
-                        site.pdf_categories = pdf_cats
-                        site.slide_categories = slide_cats
-                        site.gallery_categories = gallery_cats
-                        site.save(update_fields=['video_categories', 'pdf_categories', 'slide_categories', 'gallery_categories'])
+                    site.video_categories = _read_list('video_category[]')
+                    site.pdf_categories = _read_list('pdf_category[]')
+                    site.slide_categories = _read_list('slide_category[]')
+                    site.gallery_categories = _read_list('gallery_category[]')
+                    site.save(update_fields=[
+                        'home_pillars',
+                        'donation_methods',
+                        'video_categories',
+                        'pdf_categories',
+                        'slide_categories',
+                        'gallery_categories',
+                    ])
                     messages.success(request, 'Site settings saved successfully.')
                     return redirect(f"{reverse('dashboard')}?tab=site_settings")
                 messages.error(request, 'Please correct the errors below.')

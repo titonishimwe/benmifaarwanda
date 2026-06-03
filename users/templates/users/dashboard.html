@@ -263,7 +263,29 @@
             <div class="col-6"><label class="form-label">First name</label><input type="text" name="first_name" class="form-control" value="{{ user.first_name }}"></div>
             <div class="col-6"><label class="form-label">Last name</label><input type="text" name="last_name" class="form-control" value="{{ user.last_name }}"></div>
           </div>
+          <div class="row g-2 mt-2">
+            <div class="col-6">
+              <label class="form-label">Gender</label>
+              <select name="gender" class="form-select">
+                <option value="" {% if not profile.gender %}selected{% endif %}>—</option>
+                <option value="male" {% if profile.gender == 'male' %}selected{% endif %}>Male</option>
+                <option value="female" {% if profile.gender == 'female' %}selected{% endif %}>Female</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Marital status</label>
+              <select name="marital_status" class="form-select">
+                <option value="" {% if not profile.marital_status %}selected{% endif %}>—</option>
+                <option value="single" {% if profile.marital_status == 'single' %}selected{% endif %}>Single</option>
+                <option value="married" {% if profile.marital_status == 'married' %}selected{% endif %}>Married</option>
+                <option value="divorced" {% if profile.marital_status == 'divorced' %}selected{% endif %}>Divorced</option>
+                <option value="widowed" {% if profile.marital_status == 'widowed' %}selected{% endif %}>Widowed</option>
+              </select>
+            </div>
+          </div>
           <div class="mb-3 mt-2"><label class="form-label">Phone</label><input type="text" name="phone_number" class="form-control" value="{{ profile.phone_number }}"></div>
+          <div class="mb-3"><label class="form-label">Date of birth</label><input type="date" name="date_of_birth" class="form-control" value="{{ profile.date_of_birth|date:'Y-m-d' }}"></div>
+          <div class="mb-3"><label class="form-label">Address</label><input type="text" name="address" class="form-control" value="{{ profile.address }}"></div>
           <div class="mb-3"><label class="form-label">Photo</label><input type="file" name="profile_picture" class="form-control"></div>
           <div class="d-flex gap-2 mt-4">
             <button type="submit" class="dash-btn-primary flex-grow-1 justify-content-center border-0">Save</button>

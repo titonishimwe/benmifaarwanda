@@ -66,33 +66,39 @@ class Command(BaseCommand):
         parser.add_argument("--users", type=int, default=8)
         parser.add_argument("--featured-videos", type=int, default=6)
         parser.add_argument("--featured-services", type=int, default=3)
-        parser.add_argument("--admin-username", type=str, default="admin")
+        parser.add_argument(
+            "--admin-username",
+            type=str,
+            default="tite",
+            help="Demo admin username (default: tite). Skipped if user already exists.",
+        )
         parser.add_argument("--admin-password", type=str, default="admin12345")
+        parser.add_argument(
+            "--create-admin",
+            action="store_true",
+            help="Create the admin user if missing. Does not change existing users' roles.",
+        )
 
     @transaction.atomic
     def handle(self, *args, **opts):
         random.seed(7)
 
-        admin_user, admin_created = User.objects.get_or_create(
-            username=opts["admin_username"],
-            defaults={
-                "email": "admin@be2sahobe.local",
-                "is_staff": True,
-                "is_superuser": True,
-                "first_name": "Admin",
-                "last_name": "User",
-                "is_active": True,
-            },
-        )
-        if admin_created:
-            admin_user.set_password(opts["admin_password"])
-            admin_user.save(update_fields=["password"])
-        else:
-            # ensure staff access
-            if not admin_user.is_staff:
-                admin_user.is_staff = True
-                admin_user.save(update_fields=["is_staff"])
-        Profile.objects.get_or_create(user=admin_user)
+        if opts["create_admin"]:
+            admin_user, admin_created = User.objects.get_or_create(
+                username=opts["admin_username"],
+                defaults={
+                    "email": "admin@be2sahobe.local",
+                    "is_staff": True,
+                    "is_superuser": True,
+                    "first_name": "Admin",
+                    "last_name": "User",
+                    "is_active": True,
+                },
+            )
+            if admin_created:
+                admin_user.set_password(opts["admin_password"])
+                admin_user.save(update_fields=["password"])
+            Profile.objects.get_or_create(user=admin_user)
 
         SiteSettings.load()
 

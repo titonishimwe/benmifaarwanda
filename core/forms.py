@@ -117,7 +117,15 @@ class SlideForm(forms.ModelForm):
 class SiteSettingsForm(forms.ModelForm):
     class Meta:
         model = SiteSettings
-        exclude = ['updated_at']
+        exclude = [
+            'updated_at',
+            'donation_methods',
+            'home_pillars',
+            'video_categories',
+            'pdf_categories',
+            'slide_categories',
+            'gallery_categories',
+        ]
         widgets = {
             'footer_tagline': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'home_hero_subtitle': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),

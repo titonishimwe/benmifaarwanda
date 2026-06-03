@@ -7,8 +7,8 @@
      HERO
 ═══════════════════════════════════════════════ -->
 <section id="hero">
-  <div class="container py-5">
-    <div class="row align-items-center g-5">
+  <div class="container py-4 py-lg-5">
+    <div class="row align-items-center g-4 g-lg-5">
 
       <!-- Left -->
       <div class="col-lg-6">
@@ -16,11 +16,11 @@
         <h1 class="display-3 fw-bold text-white mb-4" style="line-height:1.15;">
           {{ site.home_hero_title_learn|default:"Learn." }} <span style="color:var(--gold);">{{ site.home_hero_title_grow|default:"Grow." }}</span><br>{{ site.home_hero_title_rest|default:"Thrive. Together." }}
         </h1>
-        <p class="mb-5" style="color:rgba(255,255,255,0.75); font-size:1.05rem; max-width:540px;">
+        <p class="mb-5 hero-lead" style="color:rgba(255,255,255,0.75); font-size:1.05rem; max-width:540px;">
           {{ site.home_hero_subtitle|default:"A transformative digital ecosystem empowering families through holistic living — integrating health, education, spiritual growth, economic empowerment, and sustainable community development." }}
         </p>
 
-        <div class="d-flex flex-wrap gap-3 mb-5">
+        <div class="hero-cta-row mb-5">
           <a href="{{ site.home_cta_primary_url|default:'#learning' }}" class="btn-earth">
             <i class="bi bi-play-circle-fill me-2"></i>{{ site.home_cta_primary_text|default:"Explore Learning Programs" }}
           </a>
@@ -29,7 +29,7 @@
           </a>
         </div>
 
-        <div class="d-flex flex-wrap gap-4">
+        <div class="hero-stats-row">
           <div class="hero-stat">
             <div class="hero-stat-num">{{ site.home_stat_1_num|default:"5" }}</div>
             <div class="hero-stat-label">{{ site.home_stat_1_label|default:"Holistic Living Pillars" }}</div>
@@ -305,45 +305,43 @@
 <!-- ═══════════════════════════════════════════════
      FUNDING NEEDS
 ═══════════════════════════════════════════════ -->
-<section id="funding" style="background:var(--green-dark); position:relative; overflow:hidden;">
-  <div class="container" style="padding:80px 0;">
-    <div class="row align-items-center g-5">
+<section id="funding" class="funding-section">
+  <div class="container funding-section-inner">
+    <div class="row align-items-center g-4 g-lg-5">
 
-      <!-- Left text -->
-      <div class="col-lg-5">
-        <span class="section-label" style="background:rgba(200,155,76,0.15); color:var(--gold);">
+      <div class="col-lg-5 funding-section-copy">
+        <span class="section-label funding-section-label">
           Growth & Scalability
         </span>
         <h2 class="section-title text-white mt-2">Funding Needs</h2>
         <div class="divider-line"></div>
-        <p style="color:rgba(255,255,255,0.7);">
+        <p class="funding-section-lead">
           To scale our impact and reach thousands of families, we are seeking support for critical areas of the
           BE2SAHOBE digital ecosystem. Funding ensures high-quality content delivery and sustainable community
           transformation.
         </p>
 
-        <div class="d-flex flex-wrap gap-3 mt-4">
+        <div class="funding-pillars-grid">
           <div class="funding-stat-box">
-            <div class="num"><i class="bi bi-laptop"></i></div>
+            <div class="num"><i class="bi bi-laptop" aria-hidden="true"></i></div>
             <div class="lbl">Tech & Apps</div>
           </div>
           <div class="funding-stat-box">
-            <div class="num"><i class="bi bi-journal-text"></i></div>
+            <div class="num"><i class="bi bi-journal-text" aria-hidden="true"></i></div>
             <div class="lbl">Content Production</div>
           </div>
           <div class="funding-stat-box">
-            <div class="num"><i class="bi bi-people"></i></div>
+            <div class="num"><i class="bi bi-people" aria-hidden="true"></i></div>
             <div class="lbl">Community Outreach</div>
           </div>
         </div>
 
-        <a href="{% url 'partners' %}" class="btn-earth mt-4 d-inline-block">
+        <a href="{% url 'partners' %}" class="btn-earth funding-cta">
           Partner With Us <i class="bi bi-arrow-right ms-2"></i>
         </a>
       </div>
 
-      <!-- Right Priority Card -->
-      <div class="col-lg-6 offset-lg-1">
+      <div class="col-lg-6 offset-lg-1 funding-section-card-col">
         <div class="funding-form-card">
           <h4 class="mb-4" style="font-size:1.3rem;">Investment Priorities</h4>
 

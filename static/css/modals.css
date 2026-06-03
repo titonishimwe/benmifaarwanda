@@ -159,3 +159,31 @@
 .donation-account-num {
   letter-spacing: 0.04em;
 }
+
+@media (max-width: 575.98px) {
+  .modal.app-modal .modal-dialog,
+  .modal .modal-dialog {
+    margin: 0.75rem;
+    max-width: calc(100% - 1.5rem);
+  }
+
+  .modal.app-modal .modal-body,
+  .modal .modal-content.app-modal .modal-body {
+    padding: 1rem;
+  }
+
+  .donation-method-list {
+    padding-left: 0;
+  }
+
+  .donation-method-list > div {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+
+  .donation-method-list dd {
+    text-align: left;
+    word-break: break-word;
+  }
+}

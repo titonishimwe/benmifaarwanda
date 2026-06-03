@@ -18,6 +18,13 @@ if _allowed_hosts:
 else:
     ALLOWED_HOSTS = ['*'] if DEBUG else []
 
+_render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if _render_host:
+    if _render_host not in ALLOWED_HOSTS and '*' not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS = [*_allowed_hosts.split(',')] if _allowed_hosts else []
+        ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS if h.strip()]
+        ALLOWED_HOSTS.append(_render_host)
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -116,6 +123,10 @@ CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.onrender.com').split(',')
     if o.strip()
 ]
+if _render_host:
+    _render_origin = f"https://{_render_host}"
+    if _render_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_render_origin)
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 

@@ -70,6 +70,19 @@
       {% if member.user.is_staff %}<span class="badge bg-secondary mt-1">Staff</span>{% endif %}
       <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
         <a href="{% url 'profile_detail' member.user.username %}" class="small text-decoration-none" style="color:var(--green-main);">View profile →</a>
+        {% if not member.user.is_staff or member.user.id == user.id %}
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary py-0"
+          data-bs-toggle="modal"
+          data-bs-target="#editMemberModal"
+          data-user-id="{{ member.user.id }}"
+          data-username="{{ member.user.username }}"
+          data-user-name="{{ member.user.get_full_name|default:member.user.username }}"
+        >
+          Edit login
+        </button>
+        {% endif %}
         {% if not member.user.is_staff and member.user.id != user.id %}
         <button
           type="button"
@@ -88,6 +101,49 @@
   {% empty %}
   <div class="dash-card col-12"><p class="text-muted mb-0">No members found.</p></div>
   {% endfor %}
+</div>
+
+<!-- Edit member username / password -->
+<div class="modal fade" id="editMemberModal" tabindex="-1" aria-labelledby="editMemberModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editMemberModalLabel">Edit login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" id="editMemberForm">
+        {% csrf_token %}
+        <input type="hidden" name="tab" value="members">
+        <input type="hidden" name="action" value="edit_member">
+        <input type="hidden" name="user_id" id="editMemberUserId" value="">
+        <div class="modal-body">
+          <p class="small text-muted mb-3">Update username and/or password for <strong id="editMemberName">this member</strong>. Leave password fields blank to keep the current password.</p>
+          <div class="mb-3">
+            <label class="form-label" for="editMemberUsername">Username</label>
+            <input type="text" name="username" id="editMemberUsername" class="form-control" required autocomplete="username">
+            {% if edit_member_form and edit_member_form.username.errors %}<div class="text-danger small mt-1">{{ edit_member_form.username.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editMemberPassword1">New password</label>
+            <input type="password" name="password1" id="editMemberPassword1" class="form-control" autocomplete="new-password">
+            {% if edit_member_form and edit_member_form.password1.errors %}<div class="text-danger small mt-1">{{ edit_member_form.password1.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="mb-0">
+            <label class="form-label" for="editMemberPassword2">Confirm new password</label>
+            <input type="password" name="password2" id="editMemberPassword2" class="form-control" autocomplete="new-password">
+            {% if edit_member_form and edit_member_form.password2.errors %}<div class="text-danger small mt-1">{{ edit_member_form.password2.errors.0 }}</div>{% endif %}
+          </div>
+          {% if edit_member_form and edit_member_form.non_field_errors %}
+          <div class="text-danger small mt-2">{{ edit_member_form.non_field_errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <!-- Delete member confirmation -->
@@ -117,17 +173,51 @@
 
 <script>
   (function () {
-    const modalEl = document.getElementById('deleteMemberModal');
-    if (!modalEl) return;
-    modalEl.addEventListener('show.bs.modal', function (event) {
-      const trigger = event.relatedTarget;
-      if (!trigger) return;
-      const userId = trigger.getAttribute('data-user-id') || '';
-      const userName = trigger.getAttribute('data-user-name') || 'this member';
-      const idInput = document.getElementById('deleteMemberUserId');
-      const nameEl = document.getElementById('deleteMemberName');
-      if (idInput) idInput.value = userId;
-      if (nameEl) nameEl.textContent = userName;
-    });
+    const editModalEl = document.getElementById('editMemberModal');
+    if (editModalEl) {
+      editModalEl.addEventListener('show.bs.modal', function (event) {
+        const trigger = event.relatedTarget;
+        if (!trigger) return;
+        const userId = trigger.getAttribute('data-user-id') || '';
+        const username = trigger.getAttribute('data-username') || '';
+        const userName = trigger.getAttribute('data-user-name') || 'this member';
+        const idInput = document.getElementById('editMemberUserId');
+        const nameEl = document.getElementById('editMemberName');
+        const usernameInput = document.getElementById('editMemberUsername');
+        const p1 = document.getElementById('editMemberPassword1');
+        const p2 = document.getElementById('editMemberPassword2');
+        if (idInput) idInput.value = userId;
+        if (nameEl) nameEl.textContent = userName;
+        if (usernameInput) usernameInput.value = username;
+        if (p1) p1.value = '';
+        if (p2) p2.value = '';
+      });
+    }
+
+    const deleteModalEl = document.getElementById('deleteMemberModal');
+    if (deleteModalEl) {
+      deleteModalEl.addEventListener('show.bs.modal', function (event) {
+        const trigger = event.relatedTarget;
+        if (!trigger) return;
+        const userId = trigger.getAttribute('data-user-id') || '';
+        const userName = trigger.getAttribute('data-user-name') || 'this member';
+        const idInput = document.getElementById('deleteMemberUserId');
+        const nameEl = document.getElementById('deleteMemberName');
+        if (idInput) idInput.value = userId;
+        if (nameEl) nameEl.textContent = userName;
+      });
+    }
+
+    {% if edit_member_form and edit_member_form.errors %}
+    const reopenEdit = document.getElementById('editMemberModal');
+    if (reopenEdit && window.bootstrap) {
+      const id = '{{ edit_member_form.data.user_id|default:"" }}';
+      const idInput = document.getElementById('editMemberUserId');
+      const usernameInput = document.getElementById('editMemberUsername');
+      if (idInput && id) idInput.value = id;
+      if (usernameInput) usernameInput.value = '{{ edit_member_form.data.username|default:""|escapejs }}';
+      bootstrap.Modal.getOrCreateInstance(reopenEdit).show();
+    }
+    {% endif %}
   })();
 </script>

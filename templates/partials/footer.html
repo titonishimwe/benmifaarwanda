@@ -1,17 +1,15 @@
-<footer style="padding:64px 0 32px;">
+<footer class="site-footer">
   <div class="container">
-    <div class="row gy-5">
-
-      <!-- Brand -->
-      <div class="col-lg-4">
+    <div class="row gy-5 footer-main-row">
+      <div class="col-12 col-lg-4 footer-brand-col">
         <div class="footer-brand mb-3">
           <i class="bi bi-flower2 me-1" style="color:var(--earth);"></i>
           CSRMIFAA/B2SHOBE <span>LTD</span>
         </div>
-        <p class="small mb-4" style="max-width:300px;">
+        <p class="small footer-tagline mb-4">
           {{ site.footer_tagline|default:"A digital ecosystem for holistic family living — integrating education, support, economic empowerment, and community across Africa." }}
         </p>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 footer-social">
           {% if site.facebook_url %}
           <a href="{{ site.facebook_url }}" class="social-link"><i class="bi bi-facebook"></i></a>
           {% endif %}
@@ -27,53 +25,49 @@
         </div>
       </div>
 
-      <!-- Company -->
-      <div class="col-6 col-md-4 col-lg-2">
+      <div class="col-4 col-lg-2 footer-col">
         <h5>Company</h5>
-        <ul class="list-unstyled" style="display:flex; flex-direction:column; gap:10px;">
+        <ul class="list-unstyled footer-links">
           <li><a href="{% url 'about' %}">About Us</a></li>
           <li><a href="{% url 'gallery' %}">Gallery</a></li>
           <li><a href="{% url 'professional_support' %}">Services</a></li>
         </ul>
       </div>
 
-      <!-- Learn -->
-      <div class="col-6 col-md-4 col-lg-2">
+      <div class="col-4 col-lg-2 footer-col">
         <h5>Learn</h5>
-        <ul class="list-unstyled" style="display:flex; flex-direction:column; gap:10px;">
+        <ul class="list-unstyled footer-links">
           <li><a href="{% url 'video_list' %}">Videos</a></li>
           <li><a href="{% url 'pdf_list' %}">PDF Guides</a></li>
           <li><a href="{% url 'slides_list' %}">Slides</a></li>
         </ul>
       </div>
 
-      <!-- Contact -->
-      <div class="col-md-4 col-lg-4">
+      <div class="col-4 col-lg-4 footer-col">
         <h5>Contact Us</h5>
-        <ul class="list-unstyled" style="display:flex; flex-direction:column; gap:12px; font-size:0.88rem;">
-          <li><i class="bi bi-geo-alt me-2" style="color:var(--gold);"></i>{{ site.contact_address|default:"Kigali, Rwanda" }}</li>
+        <ul class="list-unstyled footer-contact">
+          <li><i class="bi bi-geo-alt me-2 footer-icon"></i>{{ site.contact_address|default:"Kigali, Rwanda" }}</li>
           <li>
-            <i class="bi bi-telephone me-2" style="color:var(--gold);"></i>
-            <a href="tel:{{ contact_phone_tel }}" style="color:inherit;text-decoration:none;">{{ site.contact_phone|default:"+250 788 487 127" }}</a>
+            <i class="bi bi-telephone me-2 footer-icon"></i>
+            <a href="tel:{{ contact_phone_tel }}" class="footer-contact-link">{{ site.contact_phone|default:"+250 788 487 127" }}</a>
           </li>
           {% if whatsapp_url %}
           <li>
-            <i class="bi bi-whatsapp me-2" style="color:var(--gold);"></i>
-            <a href="{{ whatsapp_url }}" style="color:inherit;text-decoration:none;">{{ whatsapp_display }}</a>
+            <i class="bi bi-whatsapp me-2 footer-icon"></i>
+            <a href="{{ whatsapp_url }}" class="footer-contact-link">{{ whatsapp_display }}</a>
           </li>
           {% endif %}
           <li>
-            <i class="bi bi-envelope me-2" style="color:var(--gold);"></i>
-            <a href="mailto:{{ site.contact_email|default:'hello@be2sahobe.com' }}" style="color:inherit;text-decoration:none;">{{ site.contact_email|default:"hello@be2sahobe.com" }}</a>
+            <i class="bi bi-envelope me-2 footer-icon"></i>
+            <a href="mailto:{{ site.contact_email|default:'hello@be2sahobe.com' }}" class="footer-contact-link">{{ site.contact_email|default:"hello@be2sahobe.com" }}</a>
           </li>
         </ul>
       </div>
-
     </div>
 
-    <hr style="border-color:rgba(255,255,255,0.08); margin:48px 0 24px;">
+    <hr class="footer-divider">
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3" style="font-size:0.82rem;">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 footer-bottom">
       <span>{{ site.footer_copyright|default:"© 2026 BE2SAHOBE LTD — We don't just teach, we help families IMPLEMENT change." }}</span>
       <span>
         <i class="bi bi-heart-fill me-1" style="color:var(--earth);"></i>
