@@ -52,13 +52,17 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        # Image optimization
-        if self.profile_picture and self.profile_picture.name != 'default.jpg':
+        if not self.profile_picture or self.profile_picture.name == 'default.jpg':
+            return
+
+        try:
             img_path = self.profile_picture.path
+        except (NotImplementedError, ValueError):
+            return
 
-            if os.path.exists(img_path):
-                img = Image.open(img_path)
+        if os.path.exists(img_path):
+            img = Image.open(img_path)
 
-                if img.height > 300 or img.width > 300:
-                    img.thumbnail((300, 300))
-                    img.save(img_path)
+            if img.height > 300 or img.width > 300:
+                img.thumbnail((300, 300))
+                img.save(img_path)
