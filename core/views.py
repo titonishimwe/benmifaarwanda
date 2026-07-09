@@ -41,9 +41,18 @@ def gallery_view(request):
     if request.method == 'POST' and request.user.is_staff:
         form = GalleryItemForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Image uploaded successfully!')
-            return redirect('gallery')
+            try:
+                form.save()
+            except Exception:
+                messages.error(
+                    request,
+                    'Could not upload the image. Check Cloudinary settings on the server, then try again.',
+                )
+            else:
+                messages.success(request, 'Image uploaded successfully!')
+                return redirect('gallery')
+        else:
+            messages.error(request, 'Please fix the errors in the upload form.')
     else:
         form = GalleryItemForm()
         
@@ -72,9 +81,18 @@ def edit_gallery_item(request, pk):
     if request.method == 'POST':
         form = GalleryItemForm(request.POST, request.FILES, instance=item)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Image updated successfully!')
-            return redirect('gallery')
+            try:
+                form.save()
+            except Exception:
+                messages.error(
+                    request,
+                    'Could not upload the image. Check Cloudinary settings on the server, then try again.',
+                )
+            else:
+                messages.success(request, 'Image updated successfully!')
+                return redirect('gallery')
+        else:
+            messages.error(request, 'Please fix the errors in the form.')
     else:
         form = GalleryItemForm(instance=item)
     
