@@ -61,59 +61,53 @@ def profile_view(request):
 
 @login_required
 def edit_profile(request):
-    """
-    Handle profile editing via modal form
-    """
-    if request.method == 'POST':
-        # Get the current user and profile
-        user = request.user
-        profile = user.profile
-        
-        # Update User model fields
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        
-        # Check if username is taken (exclude current user)
-        if User.objects.exclude(id=user.id).filter(username=username).exists():
-            messages.error(request, 'This username is already taken.')
-            return redirect('profile')
-        
-        # Update user fields
-        user.username = username
-        user.email = email
-        user.first_name = first_name
-        user.last_name = last_name
-        user.save()
-        
-        # Update Profile fields only when submitted (modal may omit optional fields)
-        if 'gender' in request.POST:
-            profile.gender = request.POST.get('gender') or ''
-        if 'marital_status' in request.POST:
-            profile.marital_status = request.POST.get('marital_status') or ''
-        if 'phone_number' in request.POST:
-            profile.phone_number = request.POST.get('phone_number') or ''
-        if 'address' in request.POST:
-            profile.address = request.POST.get('address') or ''
-        if 'date_of_birth' in request.POST:
-            from datetime import datetime
-            dob = (request.POST.get('date_of_birth') or '').strip()
-            if dob:
-                profile.date_of_birth = datetime.strptime(dob, '%Y-%m-%d').date()
-            else:
-                profile.date_of_birth = None
-        
-        # Handle profile picture upload
-        if request.FILES.get('profile_picture'):
-            profile.profile_picture = request.FILES['profile_picture']
-        
+    if request.method != 'POST':
+        return redirect(f"{reverse('dashboard')}?tab=profile")
+
+    user = request.user
+    profile, _ = Profile.objects.get_or_create(user=user)
+
+    username = (request.POST.get('username') or user.username).strip()
+    email = (request.POST.get('email') or '').strip()
+    first_name = (request.POST.get('first_name') or '').strip()
+    last_name = (request.POST.get('last_name') or '').strip()
+
+    if User.objects.exclude(id=user.id).filter(username=username).exists():
+        messages.error(request, 'This username is already taken.')
+        return redirect(f"{reverse('dashboard')}?tab=profile")
+
+    profile.gender = request.POST.get('gender') or ''
+    profile.marital_status = request.POST.get('marital_status') or ''
+    profile.phone_number = request.POST.get('phone_number') or ''
+    profile.address = request.POST.get('address') or ''
+
+    from datetime import datetime
+    dob = (request.POST.get('date_of_birth') or '').strip()
+    if dob:
+        profile.date_of_birth = datetime.strptime(dob, '%Y-%m-%d').date()
+    else:
+        profile.date_of_birth = None
+
+    if request.FILES.get('profile_picture'):
+        profile.profile_picture = request.FILES['profile_picture']
+
+    try:
         profile.save()
-        
-        messages.success(request, 'Your profile has been updated successfully!')
-        return redirect('profile')
-    
-    return redirect('profile')
+    except Exception:
+        messages.error(
+            request,
+            'Could not upload your photo. Check Cloudinary settings on the server, then try again.',
+        )
+        return redirect(f"{reverse('dashboard')}?tab=profile")
+
+    user.username = username
+    user.email = email
+    user.first_name = first_name
+    user.last_name = last_name
+    user.save()
+
+    messages.success(request, 'Your profile has been updated successfully!')
+    return redirect(f"{reverse('dashboard')}?tab=profile")
 
 
 
@@ -183,7 +177,7 @@ def user_dashboard(request):
     """
     active_tab = request.POST.get('tab') or request.GET.get('tab', 'overview')
     user = request.user
-    profile = user.profile
+    profile, _ = Profile.objects.get_or_create(user=user)
 
     context = {
         'active_tab': active_tab,
